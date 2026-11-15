@@ -1,1 +1,414 @@
-<this is a test page>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KSR Account Test (Lower) Mock Test</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#1d2430; --muted:#6b7280; --line:#e4e0d6;
+  --accent:#1f4e79; --accent-soft:#e6eef6; --ok:#1e7a46; --ok-soft:#e3f3e9;
+  --bad:#b42318; --bad-soft:#fbe9e7; --warn:#a15c07; --warn-soft:#fdf1dc;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+header{background:var(--accent);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header h1{font-size:17px;margin:0;font-weight:600}
+header .meta{font-size:13px;opacity:.9;display:flex;gap:16px;align-items:center}
+.timer{font-variant-numeric:tabular-nums;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;font-weight:600}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px}
+.hidden{display:none!important}
+
+/* Start */
+#start h2{margin-top:0;font-size:22px}
+#start p.sub{color:var(--muted);margin-top:-6px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.mode{border:2px solid var(--line);border-radius:12px;padding:18px;cursor:pointer;transition:.15s;background:#fff;text-align:left;font:inherit;color:inherit}
+.mode:hover{border-color:var(--accent)}
+.mode.sel{border-color:var(--accent);background:var(--accent-soft)}
+.mode h3{margin:0 0 6px;font-size:16px}
+.mode p{margin:0;color:var(--muted);font-size:14px}
+.opts{display:flex;gap:20px;flex-wrap:wrap;margin:8px 0 20px;font-size:14px}
+.opts label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 20px;font:inherit;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.btn.danger{background:var(--bad)}
+.resume{margin-top:14px;font-size:14px;color:var(--muted)}
+.resume button{margin-left:8px}
+
+/* Test */
+#test{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start}
+.qhead{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:8px}
+.qtext{font-size:18px;font-weight:500;margin:0 0 18px}
+.option{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;font:inherit;color:inherit;cursor:pointer;transition:.12s}
+.option:hover:not(:disabled){border-color:var(--accent)}
+.option .k{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
+.option.chosen{border-color:var(--accent);background:var(--accent-soft)}
+.option.chosen .k{background:var(--accent);color:#fff}
+.option.correct{border-color:var(--ok);background:var(--ok-soft)}
+.option.correct .k{background:var(--ok);color:#fff}
+.option.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.option.wrong .k{background:var(--bad);color:#fff}
+.option:disabled{cursor:default}
+.feedback{margin-top:6px;padding:10px 14px;border-radius:8px;font-weight:600;font-size:14px}
+.feedback.ok{background:var(--ok-soft);color:var(--ok)}
+.feedback.bad{background:var(--bad-soft);color:var(--bad)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+.nav .right{display:flex;gap:10px}
+.side h4{margin:0 0 10px;font-size:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;margin-bottom:14px}
+.stats div{background:var(--bg);border-radius:6px;padding:6px 8px}
+.stats b{display:block;font-size:16px}
+.palette{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.palette button{aspect-ratio:1;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:11px;cursor:pointer;padding:0;color:var(--ink)}
+.palette button.ans{background:var(--accent);color:#fff;border-color:var(--accent)}
+.palette button.flag{box-shadow:inset 0 -3px 0 var(--warn)}
+.palette button.r-ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.palette button.r-bad{background:var(--bad);color:#fff;border-color:var(--bad)}
+.palette button.cur{outline:2px solid var(--ink);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.side .btn{width:100%;margin-top:14px}
+
+/* Results */
+.score{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 24px}
+.score .box{flex:1;min-width:130px;background:var(--bg);border-radius:10px;padding:14px}
+.score .box b{display:block;font-size:26px}
+.score .box span{font-size:13px;color:var(--muted)}
+.score .ok b{color:var(--ok)} .score .bad b{color:var(--bad)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filters button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer}
+.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rev{border-top:1px solid var(--line);padding:16px 0}
+.rev .qt{font-weight:500;margin-bottom:8px}
+.rev .tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}
+.tag.ok{background:var(--ok-soft);color:var(--ok)} .tag.bad{background:var(--bad-soft);color:var(--bad)} .tag.skip{background:var(--warn-soft);color:var(--warn)}
+.rev ul{list-style:none;padding:0;margin:0}
+.rev li{padding:4px 10px;border-radius:6px;font-size:14px;margin-bottom:3px}
+.rev li.c{background:var(--ok-soft);color:var(--ok);font-weight:600}
+.rev li.w{background:var(--bad-soft);color:var(--bad);text-decoration:line-through}
+.ml{margin-top:14px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;background:#fcfbf8}
+.ml .lbl{font-size:12px;color:var(--muted);margin-bottom:6px}
+.ml img{max-width:100%;height:auto;display:block}
+.rev .ml{margin:8px 0}
+.langtog{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.note{font-size:12px;color:var(--muted);margin-top:24px}
+
+@media(max-width:820px){
+  #test{grid-template-columns:1fr}
+  .modes{grid-template-columns:1fr}
+  .side{order:-1}
+  .palette{grid-template-columns:repeat(10,1fr)}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Account Test (Lower) · Paper I · KSR · Mock Test</h1>
+  <div class="meta">
+    <label class="langtog"><input type="checkbox" id="hdrMl" checked> മലയാളം</label>
+    <span id="modeLabel"></span>
+    <span id="timer" class="timer hidden">2:00:00</span>
+  </div>
+</header>
+
+<main>
+  <!-- START -->
+  <section id="start" class="card">
+    <h2>Kerala Service Rules mock test</h2>
+    <p class="sub">100 questions · 100 marks · 2 hours · from KPSC Departmental Test 2023 (Code DE-07/2023/001, Version A), scored against the provisional answer key.</p>
+
+    <div class="modes">
+      <button class="mode" data-mode="practice">
+        <h3>Practice mode</h3>
+        <p>See whether you are right immediately after selecting an option. The correct answer is shown and the answer is locked.</p>
+      </button>
+      <button class="mode" data-mode="exam">
+        <h3>Exam mode</h3>
+        <p>No answers shown until you submit the test. You can change answers and flag questions for review before submitting.</p>
+      </button>
+    </div>
+
+    <div class="opts">
+      <label><input type="checkbox" id="optTimer" checked> 2 hour countdown timer</label>
+      <label><input type="checkbox" id="optShuffle"> Shuffle question order</label>
+      <label><input type="checkbox" id="optMl" checked> Show Malayalam (മലയാളം)</label>
+    </div>
+
+    <button class="btn" id="startBtn" disabled>Start test</button>
+    <div class="resume hidden" id="resumeBox">You have an unfinished test.
+      <button class="btn ghost" id="resumeBtn">Resume</button>
+    </div>
+  </section>
+
+  <!-- TEST -->
+  <section id="test" class="hidden">
+    <div class="card">
+      <div class="qhead"><span id="qnum"></span><span id="qorig"></span></div>
+      <p class="qtext" id="qtext"></p>
+      <div id="options"></div>
+      <div id="feedback"></div>
+      <div id="mlBox"></div>
+      <div class="nav">
+        <button class="btn ghost" id="prevBtn">Previous</button>
+        <div class="right">
+          <button class="btn ghost" id="flagBtn">Flag for review</button>
+          <button class="btn ghost hidden" id="clearBtn">Clear</button>
+          <button class="btn" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+    <aside class="card side">
+      <h4>Progress</h4>
+      <div class="stats" id="stats"></div>
+      <div class="palette" id="palette"></div>
+      <div class="legend" id="legend"></div>
+      <button class="btn danger" id="submitBtn">Submit test</button>
+    </aside>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="card hidden">
+    <h2 style="margin-top:0">Your result</h2>
+    <div class="score" id="score"></div>
+    <div class="filters" id="filters">
+      <button data-f="all" class="on">All</button>
+      <button data-f="bad">Wrong</button>
+      <button data-f="skip">Unanswered</button>
+      <button data-f="ok">Correct</button>
+    </div>
+    <div id="review"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn" id="retryWrong">Retry wrong and unanswered</button>
+      <button class="btn ghost" id="restart">Start a new test</button>
+    </div>
+    <p class="note">Answers follow the KPSC provisional answer key. The final key may differ for a few questions.</p>
+  </section>
+</main>
+
+<script>
+const DATA = [["Maximum service weightage admissible in the case of an voluntary retirement is :", ["Upto 5 years", "20 years", "No weightage admissible", "None of these"], 0], ["Male employees are granted ______ days special casual leave for undergoing Vasectomy.", ["10", "5", "6", "7"], 2], ["The primary condition for granting Travelling allowance is that :", ["The journey should be in the interest of the superiors", "The journey should be made in public interest", "The journey should be made along with family", "The journey should be made in the office hours only"], 1], ["If the pay reaches the maximum of scale of pay then employees are eligible for :", ["Stagnation increment", "Advance increment", "One D.A. as increment", "½ D.A. as increment"], 0], ["In case where free boarding and lodging are provided then D.A. eligible at the rate of :", ["Full D.A.", "¼ D.A.", "½ D.A.", "None of these"], 1], ["Presently the first time bound higher grade is granted on completion of ______ years of service.", ["8", "15", "7", "10"], 0], ["An inspector in Co-operative audit department has halted 60 hours inside the headquarters as a part of his official duty. The D.A. admissible to this officer is :", ["5 D.A.", "4½ D.A.", "3 D.A.", "No D.A."], 3], ["Maximum ceiling for availing commuted leave :", ["No ceiling", "300 days", "180 days", "400 days"], 0], ["The extended period of service of a teaching staff beyond the period of actual service will count for :", ["Time bound higher grade", "Earned leave", "Increment", "None of the above"], 3], ["KSR Part I Appendix XII B deals with :", ["Leave for study purpose", "Leave for joining the spouse", "Leave for employment abroad", "None of the above"], 0], ["Maximum DCRG admissible is :", ["7,00,000", "21,00,000", "14,00,000", "16½ times of the emoluments subject to a maximum of 17,00,000"], 3], ["Paternity leave should be availed within :", ["One year", "One month", "Three months", "Two years"], 2], ["The percentage of mileage allowance or D.A. admissible while an employee is travelling in hill tract is :", ["25", "10", "30", "100"], 0], ["Officers are divided into ______ categories for the purpose of T.A. calculation.", ["5", "4", "2", "7"], 1], ["If an employee is certified as incapacitated to continue in service he will be eligible for :", ["Compensation pension", "Superannuation pension", "Invalid pension", "Voluntary pension"], 2], ["The charge allowance can be paid for a maximum period of :", ["One year", "6 months", "4 months", "3 months"], 3], ["“Pension is rounded off to the next higher rupees”. Mark suitable comment for this statement :", ["The statement is false", "The statement is partially true", "The statement is true as this is mentioned in Rule 46 Part III KSR", "The statement is true as this is mentioned in Rule 58 Part III KSR"], 3], ["The minimum number of years service required for availing commuted leave is :", ["Three", "One", "Two", "6 months"], 0], ["The Retirement age of a full time contingent employee in State service is :", ["70 years", "56 years", "65 years", "58 years"], 1], ["The maximum portion of pension that can be commuted as per KSR Part III is :", ["20%", "30%", "40%", "100%"], 2], ["An LDC working in Swaraj Bhavan TVPM was transferred to an office in Vikas bhavan situated 3 kms away on public interest. The officer was relieved on 25/5/2023 A.N. On which date he should join for duty?", ["27.5.2023 F.N.", "26.5.2023 F.N.", "29.5.2023 F.N.", "None of these"], 0], ["A senior grade auditor in Kerala State Audit Department had applied for 10 days casual leave, but the superior officer had denied casual leave and allowed earned leave for 10 days. Mark a suitable comment of the Superior officer :", ["The act was correct and in accordance with the rules", "The act was incorrect", "Casual leave can be converted into commuted leave only", "None of the above"], 1], ["The minimum service required for granting DCRG :", ["10 years", "30 years", "33 years", "5 years"], 3], ["An assistant is transferred to Kerala House in Delhi. The maximum joining time admissible is :", ["30 days", "8 days", "7 days", "10 days"], 0], ["If departmental enquiry or proceedings is pending against a retired official then he is eligible only for :", ["Superannuation pension", "Invalid pension", "Provisional pension", "None of these"], 2], ["A Deputy Commissioner on leave is summoned before court in connection with a GST case. Is he eligible to get T.A.?", ["Yes, he is eligible", "No, he is not eligible", "Eligible only for ½ D.A.", "Eligible only for ¼ D.A."], 0], ["Calculate the pension payable from the following information : Total service 27 years Non-qualifying service 1 year Total emoluments for the last 10 months 7,50,000", ["75,000", "32,500", "60,000", "44,500"], 1], ["The retirement age of employees who enter into service on or after 1.4.2013 :", ["60 years", "65 years", "58 years", "56 years"], 0], ["For the calculation of admissible joining time, Sundays are usually :", ["Included", "Included if the transfer is beyond 50 kms", "Excluded", "Excluded in the case of part time employees only"], 2], ["The maximum period of service considered for DCRG is :", ["10 years", "5 years", "30 years", "33 years"], 3], ["D.A is inadmissible if the halt at a particular place exceeds ______ days without the sanction of the competent authority.", ["20", "5", "10", "No limit"], 2], ["Commuted leave is the conversion of which leave?", ["Half pay", "Earned", "Special casual", "LWA"], 1], ["An auditor in Kerala State Audit Department working in Thiruvananthapuram has to stay in Eranakulam for 14 days in connection with the performance of official duties. How will you calculate the D.A admissible for this auditor?", ["Full D.A for the first 7 days and 3/4 for the next 7 days", "Full D.A for the first 10 days and 1/2 for the next 4 days", "Full D.A for the first 10 days and 3/4 for the next 4 days", "Full D.A for 14 days"], 2], ["Which among the following fixation rule is applicable in the case of same scale promotion?", ["Rule 30 Part I KSR", "Rule 28 Part I KSR", "Rule 28 A Part I KSR", "Rule 37 A Part I KSR"], 0], ["Is passing of departmental test necessary for granting time bound higher grade?", ["Yes, it is necessary", "No, it is not necessary", "If is at the discretion of the employer", "None of the above"], 1], ["KSR is governed by :", ["Kerala local fund Audit Act 1996", "Indian Penal Code 1861", "Kerala Public Service Act 1968", "None of these"], 2], ["An officer had put in a total qualifying service of 29 years and 179 days. Then for the purpose of pension calculation qualifying service can be calculated as :", ["30 years", "29 years", "29½ years", "None of these"], 0], ["For contingent employees the Maximum earned leave that can be earned in an year is :", ["30", "33⅓", "33", "15"], 3], ["The maximum period an employee is allowed to continue on deputation is :", ["5 years", "10 years", "6 months", "2 years"], 0], ["If the distance from the headquarters and the outstation is more than ______ kilometers then the officer concerned can perform the journey on the day before and return journey on the next day of official business.", ["32", "50", "100", "None of these"], 1], ["Which among the following forms the base of pension calculation?", ["Total emoluments", "Last months basic pay", "Average emoluments for last 10 months", "Average emoluments for the last financial year"], 2], ["Leave account contains details regarding :", ["Earned leave", "Casual leave", "Maternity leave", "Paternity leave"], 0], ["Which among the following statement is false with regard to compensation leave?", ["Maximum leave that can be availed in a calendar year is 15", "It is not admissible to head of the office", "It should be availed within 3 months from the holiday in which he had worked", "None of these"], 3], ["The present rate of commutation of pension is :", ["35%", "40%", "25%", "50%"], 1], ["A village officer worked at outstation for 10 months had received transfer to home station Kollam on request. Is he eligible for transfer T.A.?", ["No, he is not eligible", "Yes, he is eligible", "It is based on the decision of the concerned Deputy Collector", "None of these"], 0], ["Boy service means :", ["Service prior to the age of 16", "Service prior to the age of 18", "Service prior to the age of 14", "None of these"], 1], ["After a continuous halt of ten days the halting place shall be treated as :", ["Head quarters", "Main office", "Temporary head quarters", "Permanent head quarters"], 2], ["A Panchayat Secretary travelled in department vehicle and returned to headquarters within 24 hours. The maximum amount he is eligible in the form of I.C. and D.A. is :", ["Maximum one D.A.", "Maximum two D.A.", "Minimum one D.A.", "No limit"], 0], ["______ leave is not recognised as a leave.", ["Earned leave", "Commuted leave", "Half pay leave", "Casual leave"], 3], ["Child adoption leave is granted for ______ days.", ["90", "180", "60", "120"], 1], ["If the date of joining is beyond ______ months then the date of advice will not be taken as seniority but the joining date will count for seniority.", ["3 months", "6 months", "2 months", "One month"], 0], ["Which among the following do not count for increment?", ["Overstayal of joining time regularized as LWA", "Suspension period not treated as duty", "LWA under Appendix XII A", "All the above"], 3], ["Which among the following is a special leave?", ["Earned leave", "Leave not due", "Maternity leave", "Commuted leave"], 2], ["A vacation department staff performed 20 days duty on a total vacation period of 60 days. Mention the number of earned leave he will earn :", ["10 days", "20 days", "60 days", "None of the above"], 0], ["Exgratia pension is granted to a pensioner who retire from service without completing ______ year of qualifying service.", ["10", "5", "30", "20"], 0], ["The maximum period of LWA under Appendix XII B is limited to ______ years during the entire period of service.", ["20", "5", "10", "No limit"], 1], ["A grade I officer is accompanied by his wife and three children aged 9 years, 11 years and 12 years during a transfer journey by train for the calculation of transfer T.A. which among the following statement is true?", ["Only 2 children are eligible for T.A.", "Children are not eligible for T.A.", "Officer, wife and three children are eligible for T.A.", "Wife is not eligible for T.A."], 2], ["Calculate the qualifying service for pension Total service 34 years of these : 1. 3 years suspension period regularised as LWA 2. LWA on medical grounds 2 years 3. LWA on non medical grounds 4 years", ["29 years", "27 years", "34 years", "28 years"], 1], ["Which among the holidays are excluded in the calculation of joining time?", ["All public holidays", "Sundays and Second Saturdays", "Sundays only", "Sundays and fourth Saturdays"], 2], ["Advance increment can be sanctioned only by :", ["The government", "A.G", "Director", "None of these"], 0], ["Special casual leave can be combined with other kind of leave. Mark suitable comment for this statement :", ["The statement is wrong", "The statement is correct", "Its applicable only for attending international championship", "Applicable only for attending national championship"], 1], ["Which among the following statement is false in the case of leave for Miscarriage?", ["Its granted for 42 days", "It can be sanctioned for more than one occasion", "It is counted for the period of declaration of probation", "It is reckoned for earning earned leave"], 3], ["For enforced halt ______ D.A is eligible on the second day of halt.", ["No D.A", "½ D.A", "Full D.A", "¾ D.A"], 3], ["Higher rate of family pension is ______ percentage of the last basic pay.", ["50", "30", "20", "10"], 0], ["If an employee died on the first year of service then the admissible DCRG will be :", ["Five times of last emoluments", "Two times of last emoluments", "No DCRG admissible", "Twelve times of last emoluments"], 1], ["What is the maximum ceiling proposed for provisional pension?", ["No ceiling proposed", "75% of the pension", "90% of the pension", "None of these"], 0], ["Which among the following leave can be granted while an employee is under suspension?", ["Earned leave", "Appendix XII B leave", "Leave preparatory to retirement", "None of the above"], 3], ["Special disability leave is granted for a maximum period of :", ["No maximum limit", "24 months", "36 months", "6 months"], 1], ["In which part of Kerala service rules details regarding Travelling allowances are dealt with :", ["Volume II Part II", "Volume I Part II", "Volume I Part I", "Volume II Part I"], 1], ["Which among the following institution deals with 'Local funds'?", ["Grama Panchayat", "University", "Municipal Corporation", "All the above"], 3], ["An officer under suspension had applied for 30 days surrender of earned leave. The superior officer sanctioned it. Mark suitable comment on the action of the superior :", ["The act of the superior is valid", "Only 15 days earned leave can be sanctioned", "The action of the superior is totally wrong and against rules", "None of the above"], 2], ["While travelling in hilly tract the Class I Officers are entitled to draw ______ percentage of D.A/Mileage allowance towards hill tract.", ["25%", "15%", "40%", "10%"], 0], ["The details regarding legal heirs eligible for family pension were dealt in :", ["Rule 90 Part I KSR", "Rule 90 Part II KSR", "Rule 42 Part III KSR", "None of the above"], 3], ["The qualifying service of a staff nurse was 9 years and 2 days. The pension sanctioning authority rounded of to 10 years. Mark a comment on this :", ["It is an example of ordinary rounding", "The act of the officer is void", "It is an example of special rounding", "9 years and 6 months is needed for rounding of to 10 years"], 2], ["An LDC was granted first time bound higher grade without passing the department test. Mark suitable comment on this :", ["Yes, it can be granted", "No, it cannot be granted", "The scale of the UDL can be granted", "None of the above"], 0], ["Maternity leave eligible for part time contingent employees is ______ days.", ["90", "120", "180", "60"], 2], ["KSR is applicable to which among the following :", ["Those who entered into service on or after 1.11.1956", "Contingent employees", "NMR employees", "Personal staff of ministers other than Govt. employees"], 0], ["Which among the following is a compensatory allowance?", ["Uniform allowance", "Hill tract allowance", "Project allowance", "All the above"], 3], ["Which among the following service does not count for increment?", ["Joining time period", "Suspension period regularised as LWA", "Service on deputation", "All the above"], 1], ["An officer in health department travelled to sabarimala in connection with his official duty. The total distance travelled is 175 kms, of which 75 kms is through hill tract area. He is paid hill tract allowance for 175 kms. Mark a comment on this :", ["Hill tract allowance is admissible only for 75 kms", "Hill tract allowance is admissible for 175 kms", "No hill tract allowance is admissible", "None of these"], 0], ["For journeys in department vehicle the ceiling limit will be reduced to :", ["75%", "60%", "40%", "None of these"], 3], ["In case of deputation, payment of pension contribution should be :", ["15% of the maximum of scale of payable by the Government", "25% of the maximum of scale of pay", "No pension contribution payable by foreign employer", "15% of the maximum of scale of pay to be remitted by the foreign employer"], 3], ["Which among the following service do not count for probation :", ["Compensation leave", "Casual leave", "LWA under appendix XII A", "Deputation period"], 2], ["The maximum period of leave not due eligible in the entire service is limited to :", ["180 days", "360 days", "100 days", "365 days"], 1], ["An LDC entered into service on 1.5.2006. He was promoted as UDC on 1.9.2009 and as H.C on 1.12.2014. On completion of 15 years of service he claimed for 2nd TBHG. Is he eligible for 2nd TBHG :", ["No, he is not", "Yes he is eligible", "Eligible on completion of 16 years of service", "None of these"], 0], ["D.A. is not admissible for halt exceeding 10 days at a place. Mark a comment on this statement :", ["Not admissible", "Admissible", "Admissible with the proper sanction of the competent officer", "All the above"], 2], ["A joint director in State Audit department hold additional charge of another office continuously for six months. The charge given is fall additional charge. He claimed charge allowance for six months and the Superior officer granted it. Mark a comment on this :", ["The superior’s act is as per rule", "The superior is wrong as charge allowance is limited to a maximum of three months", "No charge allowance applicable", "None of these"], 1], ["______ allowance is a monthly allowance granted to an employee who is dismissed from service.", ["Compensatory", "Personal", "Compassionate", "Statutory"], 2], ["Which among the following service do not count for pension?", ["Boy service", "Dismissal", "Daily wage", "All the above"], 3], ["Which among the following leave can be combined along with LWA under appendix XII C?", ["Casual", "Half pay", "Earned", "None of the above"], 3], ["In case of inter departmental transfer second increment in the new department can be sanctioned :", ["After the declaration of probation in the new department", "Completion of two years of service", "After the declaration of probation in the old department", "None of these"], 0], ["An LDC joined in a Grama Panchayat on 1.9.2021. The Secretary granted him 20 days casual leave till 31.12.2021. Mark a comment on this :", ["The act of the secretary is valid", "The act is void", "Maximum leave should have been restricted to eight", "None of these"], 0], ["Pension ceases to be payable if it remains undrawn for a period of ______ years.", ["10", "5", "3", "7"], 2], ["A Government officer travels for conducting university business will receive T.A from :", ["State treasury", "University", "No T.A payable", "None of these"], 1], ["Rule 56 of part III KSR deals with :", ["Classification of pension", "Compassionate allowance", "Differential gratuity", "Voluntary retirement"], 3], ["Advance increment can be sanctioned by :", ["The Government", "A.G.", "Drawing and disbursing officer", "Department director"], 0], ["If the transfer is within headquarters and the officer is relieved on the F.N. of Saturday, then he should report for duty on :", ["Monday F.N", "Friday F.N", "Tuesday F.N", "Saturday A.N"], 3], ["Joining time is treated as duty for the purpose of :", ["Qualifying service for pension", "Increment", "Earned leave", "All the above"], 3], ["Exgratia pension was introduced with effect from :", ["1.10.2001", "1.12.2001", "1.10.1999", "1.10.2002"], 2], ["In the case of anticipatory pension ______ percentage of DCRG only be authorized.", ["75", "50", "100", "55"], 0]];
+const KEYS = ['A','B','C','D'];
+const STORE = 'ksr-mock-2023';
+let S = null; // state
+let mode = null;
+const ML = {"1": ["ml/q001_0.png"], "2": ["ml/q002_0.png"], "3": ["ml/q003_0.png"], "4": ["ml/q004_0.png"], "5": ["ml/q005_0.png"], "6": ["ml/q006_0.png"], "7": ["ml/q007_0.png"], "8": ["ml/q008_0.png"], "9": ["ml/q009_0.png"], "10": ["ml/q010_0.png"], "11": ["ml/q011_0.png"], "12": ["ml/q012_0.png"], "13": ["ml/q013_0.png"], "14": ["ml/q014_0.png"], "15": ["ml/q015_0.png"], "16": ["ml/q016_0.png"], "17": ["ml/q017_0.png"], "18": ["ml/q018_0.png"], "19": ["ml/q019_0.png"], "20": ["ml/q020_0.png"], "21": ["ml/q021_0.png"], "22": ["ml/q022_0.png"], "23": ["ml/q023_0.png"], "24": ["ml/q024_0.png"], "25": ["ml/q025_0.png"], "26": ["ml/q026_0.png"], "27": ["ml/q027_0.png"], "28": ["ml/q028_0.png"], "29": ["ml/q029_0.png"], "30": ["ml/q030_0.png"], "31": ["ml/q031_0.png"], "32": ["ml/q032_0.png"], "33": ["ml/q033_0.png"], "34": ["ml/q034_0.png"], "35": ["ml/q035_0.png"], "36": ["ml/q036_0.png"], "37": ["ml/q037_0.png"], "38": ["ml/q038_0.png"], "39": ["ml/q039_0.png"], "40": ["ml/q040_0.png"], "41": ["ml/q041_0.png"], "42": ["ml/q042_0.png"], "43": ["ml/q043_0.png"], "44": ["ml/q044_0.png"], "45": ["ml/q045_0.png"], "46": ["ml/q046_0.png"], "47": ["ml/q047_0.png"], "48": ["ml/q048_0.png"], "49": ["ml/q049_0.png"], "50": ["ml/q050_0.png"], "51": ["ml/q051_0.png"], "52": ["ml/q052_0.png"], "53": ["ml/q053_0.png"], "54": ["ml/q054_0.png"], "55": ["ml/q055_0.png"], "56": ["ml/q056_0.png"], "57": ["ml/q057_0.png"], "58": ["ml/q058_0.png"], "59": ["ml/q059_0.png"], "60": ["ml/q060_0.png"], "61": ["ml/q061_0.png"], "62": ["ml/q062_0.png"], "63": ["ml/q063_0.png"], "64": ["ml/q064_0.png"], "65": ["ml/q065_0.png"], "66": ["ml/q066_0.png"], "67": ["ml/q067_0.png"], "68": ["ml/q068_0.png"], "69": ["ml/q069_0.png"], "70": ["ml/q070_0.png"], "71": ["ml/q071_0.png"], "72": ["ml/q072_0.png"], "73": ["ml/q073_0.png"], "74": ["ml/q074_0.png"], "75": ["ml/q075_0.png"], "76": ["ml/q076_0.png"], "77": ["ml/q077_0.png"], "78": ["ml/q078_0.png"], "79": ["ml/q079_0.png"], "80": ["ml/q080_0.png"], "81": ["ml/q081_0.png"], "82": ["ml/q082_0.png"], "83": ["ml/q083_0.png"], "84": ["ml/q084_0.png"], "85": ["ml/q085_0.png"], "86": ["ml/q086_0.png"], "87": ["ml/q087_0.png"], "88": ["ml/q088_0.png"], "89": ["ml/q089_0.png"], "90": ["ml/q090_0.png"], "91": ["ml/q091_0.png"], "92": ["ml/q092_0.png"], "93": ["ml/q093_0.png"], "94": ["ml/q094_0.png"], "95": ["ml/q095_0.png"], "96": ["ml/q096_0.png"], "97": ["ml/q097_0.png"], "98": ["ml/q098_0.png"], "99": ["ml/q099_0.png"], "100": ["ml/q100_0.png"]};
+let showMl = true;
+try{ const v = localStorage.getItem('ksr-mock-ml'); if (v !== null) showMl = v === '1'; }catch(e){}
+function mlHtml(qi){
+  const imgs = (ML[qi+1] || []).map(f => `<img loading="lazy" src="${f}" alt="Malayalam version of question ${qi+1}">`).join('');
+  return imgs ? `<div class="ml"><div class="lbl">മലയാളം</div>${imgs}</div>` : '';
+}
+function setMl(v){
+  showMl = v; $('optMl').checked = v; $('hdrMl').checked = v;
+  try{ localStorage.setItem('ksr-mock-ml', v ? '1' : '0'); }catch(e){}
+  if (S && !$('test').classList.contains('hidden')) render();
+  if (S && !$('results').classList.contains('hidden')) renderReview(curFilter);
+}
+let curFilter = 'all';
+
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){} }
+function load(){ try{ return JSON.parse(localStorage.getItem(STORE)); }catch(e){ return null; } }
+function clearSave(){ try{ localStorage.removeItem(STORE); }catch(e){} }
+const $ = id => document.getElementById(id);
+
+/* ---------- start screen ---------- */
+document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.mode').forEach(x => x.classList.remove('sel'));
+  b.classList.add('sel'); mode = b.dataset.mode; $('startBtn').disabled = false;
+});
+$('startBtn').onclick = () => {
+  let order = DATA.map((_, i) => i);
+  if ($('optShuffle').checked) order = shuffle(order);
+  newTest(order, mode, $('optTimer').checked);
+};
+$('optMl').onchange = e => setMl(e.target.checked);
+$('hdrMl').onchange = e => setMl(e.target.checked);
+setMl(showMl);
+const prev = load();
+if (prev && !prev.done) { $('resumeBox').classList.remove('hidden'); }
+$('resumeBtn').onclick = () => { S = load(); openTest(); };
+
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function newTest(order, m, timed){
+  S = { order, mode: m, ans: {}, flag: {}, cur: 0, timed, timeLeft: timed ? Math.round(7200 * order.length / 100) : null, done: false };
+  save(); openTest();
+}
+
+/* ---------- test ---------- */
+let tick = null;
+function openTest(){
+  $('start').classList.add('hidden'); $('results').classList.add('hidden'); $('test').classList.remove('hidden');
+  $('modeLabel').textContent = S.mode === 'practice' ? 'Practice mode' : 'Exam mode';
+  $('clearBtn').classList.toggle('hidden', S.mode === 'practice');
+  $('flagBtn').classList.toggle('hidden', S.mode === 'practice');
+  $('legend').innerHTML = S.mode === 'practice'
+    ? '<span><i style="background:var(--ok)"></i>Correct</span><span><i style="background:var(--bad)"></i>Wrong</span><span><i style="border:1px solid var(--line)"></i>Not attempted</span>'
+    : '<span><i style="background:var(--accent)"></i>Answered</span><span><i style="border:1px solid var(--line);box-shadow:inset 0 -3px 0 var(--warn)"></i>Flagged</span><span><i style="border:1px solid var(--line)"></i>Not answered</span>';
+  buildPalette(); render();
+  clearInterval(tick);
+  if (S.timed) {
+    $('timer').classList.remove('hidden'); showTime();
+    tick = setInterval(() => { S.timeLeft--; showTime(); if (S.timeLeft % 10 === 0) save(); if (S.timeLeft <= 0) { clearInterval(tick); finish(true); } }, 1000);
+  } else $('timer').classList.add('hidden');
+}
+function showTime(){
+  const t = Math.max(0, S.timeLeft), h = Math.floor(t/3600), m = Math.floor(t%3600/60), s = t%60;
+  $('timer').textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  $('timer').style.background = t < 300 ? 'rgba(180,35,24,.8)' : '';
+}
+
+function buildPalette(){
+  const p = $('palette'); p.innerHTML = '';
+  S.order.forEach((_, i) => { const b = document.createElement('button'); b.textContent = i+1; b.onclick = () => { S.cur = i; render(); }; p.appendChild(b); });
+}
+
+function render(){
+  const qi = S.order[S.cur], [q, opts, ans] = DATA[qi];
+  const chosen = S.ans[qi];
+  const locked = S.mode === 'practice' && chosen !== undefined;
+  $('qnum').textContent = `Question ${S.cur+1} of ${S.order.length}`;
+  $('qorig').textContent = S.order.length !== 100 || S.order.some((v,i)=>v!==i) ? `Q.${qi+1} in paper` : '';
+  $('qtext').textContent = q;
+  const box = $('options'); box.innerHTML = '';
+  opts.forEach((o, i) => {
+    const b = document.createElement('button'); b.className = 'option';
+    b.innerHTML = `<span class="k">${KEYS[i]}</span><span></span>`; b.lastChild.textContent = o;
+    if (locked) {
+      b.disabled = true;
+      if (i === ans) b.classList.add('correct');
+      else if (i === chosen) b.classList.add('wrong');
+    } else if (i === chosen) b.classList.add('chosen');
+    b.onclick = () => choose(qi, i);
+    box.appendChild(b);
+  });
+  const fb = $('feedback');
+  if (locked) {
+    fb.innerHTML = chosen === ans
+      ? '<div class="feedback ok">Correct!</div>'
+      : `<div class="feedback bad">Wrong. Correct answer: (${KEYS[ans]}) </div>`;
+    if (chosen !== ans) fb.firstChild.append(opts[ans]);
+  } else fb.innerHTML = '';
+  $('mlBox').innerHTML = showMl ? mlHtml(qi) : '';
+  $('prevBtn').disabled = S.cur === 0;
+  $('nextBtn').textContent = S.cur === S.order.length-1 ? 'Finish' : 'Next';
+  $('flagBtn').textContent = S.flag[qi] ? 'Unflag' : 'Flag for review';
+  updateSide();
+}
+
+function choose(qi, i){
+  if (S.mode === 'practice' && S.ans[qi] !== undefined) return;
+  S.ans[qi] = i; save(); render();
+}
+$('prevBtn').onclick = () => { if (S.cur > 0) { S.cur--; save(); render(); } };
+$('nextBtn').onclick = () => { if (S.cur < S.order.length-1) { S.cur++; save(); render(); } else confirmSubmit(); };
+$('flagBtn').onclick = () => { const qi = S.order[S.cur]; S.flag[qi] = !S.flag[qi]; save(); render(); };
+$('clearBtn').onclick = () => { delete S.ans[S.order[S.cur]]; save(); render(); };
+$('submitBtn').onclick = confirmSubmit;
+document.addEventListener('keydown', e => {
+  if ($('test').classList.contains('hidden')) return;
+  const k = e.key.toUpperCase();
+  if (KEYS.includes(k)) choose(S.order[S.cur], KEYS.indexOf(k));
+  else if (e.key === 'ArrowRight') $('nextBtn').click();
+  else if (e.key === 'ArrowLeft') $('prevBtn').click();
+});
+
+function updateSide(){
+  let answered = 0, ok = 0, bad = 0, flagged = 0;
+  S.order.forEach((qi, i) => {
+    const b = $('palette').children[i], a = S.ans[qi];
+    b.className = '';
+    if (a !== undefined) {
+      answered++;
+      if (S.mode === 'practice') { if (a === DATA[qi][2]) { ok++; b.classList.add('r-ok'); } else { bad++; b.classList.add('r-bad'); } }
+      else b.classList.add('ans');
+    }
+    if (S.flag[qi]) { flagged++; b.classList.add('flag'); }
+    if (i === S.cur) b.classList.add('cur');
+  });
+  const left = S.order.length - answered;
+  $('stats').innerHTML = S.mode === 'practice'
+    ? `<div><b style="color:var(--ok)">${ok}</b>Correct</div><div><b style="color:var(--bad)">${bad}</b>Wrong</div><div><b>${answered}</b>Attempted</div><div><b>${left}</b>Remaining</div>`
+    : `<div><b>${answered}</b>Answered</div><div><b>${left}</b>Not answered</div><div><b>${flagged}</b>Flagged</div><div><b>${S.order.length}</b>Total</div>`;
+}
+
+function confirmSubmit(){
+  const left = S.order.filter(qi => S.ans[qi] === undefined).length;
+  const msg = left ? `You have ${left} unanswered question(s). Submit anyway?` : 'Submit the test and see your result?';
+  showConfirm(msg, () => finish(false));
+}
+// lightweight inline confirm (avoids browser dialogs)
+function showConfirm(msg, yes){
+  let d = $('cfm');
+  if (!d) {
+    d = document.createElement('div'); d.id = 'cfm';
+    d.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center;z-index:20';
+    d.innerHTML = '<div class="card" style="max-width:380px;margin:20px"><p id="cfmMsg" style="margin-top:0"></p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn ghost" id="cfmNo">Cancel</button><button class="btn" id="cfmYes">Submit</button></div></div>';
+    document.body.appendChild(d);
+  }
+  $('cfmMsg').textContent = msg; d.classList.remove('hidden');
+  $('cfmNo').onclick = () => d.classList.add('hidden');
+  $('cfmYes').onclick = () => { d.classList.add('hidden'); yes(); };
+}
+
+/* ---------- results ---------- */
+function finish(timeUp){
+  clearInterval(tick); S.done = true; save();
+  $('test').classList.add('hidden'); $('results').classList.remove('hidden'); $('timer').classList.add('hidden');
+  let ok = 0, bad = 0, skip = 0;
+  S.order.forEach(qi => { const a = S.ans[qi]; if (a === undefined) skip++; else if (a === DATA[qi][2]) ok++; else bad++; });
+  const n = S.order.length, pct = Math.round(ok / n * 100);
+  const pass = pct >= 40;
+  $('score').innerHTML = `
+    <div class="box"><b>${ok} / ${n}</b><span>Score (${pct}%)</span></div>
+    <div class="box ok"><b>${ok}</b><span>Correct</span></div>
+    <div class="box bad"><b>${bad}</b><span>Wrong</span></div>
+    <div class="box"><b>${skip}</b><span>Unanswered</span></div>
+    <div class="box ${pass?'ok':'bad'}"><b>${pass?'Pass':'Below 40%'}</b><span>${timeUp?'Time ran out. ':''}40% is the pass mark</span></div>`;
+  renderReview('all');
+  window.scrollTo(0, 0);
+}
+function renderReview(f){
+  curFilter = f;
+  document.querySelectorAll('#filters button').forEach(b => b.classList.toggle('on', b.dataset.f === f));
+  const r = $('review'); r.innerHTML = '';
+  S.order.forEach((qi, i) => {
+    const [q, opts, ans] = DATA[qi], a = S.ans[qi];
+    const st = a === undefined ? 'skip' : a === ans ? 'ok' : 'bad';
+    if (f !== 'all' && f !== st) return;
+    const d = document.createElement('div'); d.className = 'rev';
+    const qt = document.createElement('div'); qt.className = 'qt';
+    qt.textContent = `${i+1}. ${q}`;
+    const tag = document.createElement('span'); tag.className = 'tag ' + st;
+    tag.textContent = st === 'ok' ? 'Correct' : st === 'bad' ? 'Wrong' : 'Unanswered';
+    qt.appendChild(tag); d.appendChild(qt);
+    const ul = document.createElement('ul');
+    opts.forEach((o, k) => {
+      const li = document.createElement('li');
+      li.textContent = `(${KEYS[k]}) ${o}` + (k === a && k === ans ? '  ✓ your answer' : k === a ? '  ✗ your answer' : '');
+      if (k === ans) li.className = 'c'; else if (k === a) li.className = 'w';
+      ul.appendChild(li);
+    });
+    d.appendChild(ul);
+    if (showMl) d.insertAdjacentHTML('beforeend', mlHtml(qi));
+    r.appendChild(d);
+  });
+  if (!r.children.length) r.innerHTML = '<p style="color:var(--muted)">Nothing here.</p>';
+}
+document.querySelectorAll('#filters button').forEach(b => b.onclick = () => renderReview(b.dataset.f));
+$('retryWrong').onclick = () => {
+  const ids = S.order.filter(qi => S.ans[qi] !== DATA[qi][2]);
+  if (!ids.length) return;
+  newTest(ids, S.mode, S.timed);
+};
+$('restart').onclick = () => {
+  clearSave(); S = null;
+  $('results').classList.add('hidden'); $('start').classList.remove('hidden'); $('resumeBox').classList.add('hidden');
+  $('modeLabel').textContent = '';
+};
+</script>
+</body>
+</html>
